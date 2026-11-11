@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Savage Warrior" />
+  <meta name="theme-color" content="#006a4e" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <title>Savage Warrior</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23006a4e'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23f42a41'/%3E%3C/svg%3E" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- Loading -->
+  <div id="loading" class="screen center">
+    <div class="logo">SAVAGE <span>WARRIOR</span></div>
+    <div class="sub">A Bangladesh-themed 3D fighting game</div>
+    <div class="bar"><div id="loadFill"></div></div>
+    <div id="loadText">Loading…</div>
+  </div>
+
+  <!-- Lobby -->
+  <div id="lobby" class="screen hidden">
+    <header>
+      <div class="logo small">SAVAGE <span>WARRIOR</span></div>
+      <div class="sub">Team Backbencher</div>
+    </header>
+    <div class="cols">
+      <section class="panel" id="profilePanel">
+        <h3>Player</h3>
+        <label class="field">Name<input id="nameInput" maxlength="16" autocomplete="off" /></label>
+        <div class="lvlRow"><b id="lvl">Level 1</b><span id="xpText">0 XP</span></div>
+        <div class="xpBar"><div id="xpFill"></div></div>
+        <div id="statsText" class="muted"></div>
+        <div class="row">
+          <button id="btnLogin" class="btn ghost">Sign in with Google</button>
+          <button id="btnLogout" class="btn ghost hidden">Sign out</button>
+        </div>
+        <div id="userLabel" class="muted">Guest mode</div>
+        <button id="btnBoard" class="btn ghost">Leaderboard</button>
+        <h3>Settings</h3>
+        <label class="field">Graphics
+          <select id="qualitySel"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select>
+        </label>
+        <label class="field">Master volume<input id="masterVol" type="range" min="0" max="1" step="0.05" /></label>
+        <label class="field">Music volume<input id="musicVol" type="range" min="0" max="1" step="0.05" /></label>
+        <label class="field">Mouse / touch sensitivity<input id="sens" type="range" min="0.3" max="2.5" step="0.1" /></label>
+        <label class="field">Minimap
+          <select id="mmSel"><option value="fixed">Fixed (whole arena)</option><option value="rot">Rotating (follows your view)</option></select>
+        </label>
+      </section>
+
+      <section class="panel wide">
+        <h3>Choose your fighter</h3>
+        <div id="classCards" class="cards"></div>
+        <h3>Mode</h3>
+        <div id="modeBtns" class="seg"></div>
+        <div id="modeDesc" class="muted"></div>
+        <h3>Map</h3>
+        <div id="mapCards" class="cards small"></div>
+        <h3>Bot difficulty</h3>
+        <div id="diffBtns" class="seg"></div>
+        <h3>Match settings</h3>
+        <div class="msRow"><span>Duration</span><div id="durBtns" class="seg"></div></div>
+        <label class="field">Enemies / bots: <b id="botsVal">Auto</b><input id="botsRange" type="range" min="0" max="14" step="1" /></label>
+        <div class="msRow"><span>Map size</span><div id="sizeBtns" class="seg"></div></div>
+        <div class="muted" id="msNote">Map size applies to Metro City (small / medium / large). These settings are used for offline and online matches (online: you are matched with players who picked the same settings).</div>
+        <h3>Camera</h3>
+        <div id="viewBtns" class="seg"></div>
+        <div class="row play">
+          <button id="btnOffline" class="btn primary">Play offline (vs bots)</button>
+          <button id="btnOnline" class="btn accent">Play online</button>
+        </div>
+        <div id="lobbyMsg" class="muted"></div>
+      </section>
+
+      <section class="panel" id="controlsPanel">
+        <h3>Controls</h3>
+        <ul class="keys">
+          <li><kbd>W A S D</kbd> move</li>
+          <li><kbd>Mouse</kbd> look</li>
+          <li><kbd>Left click</kbd> punch (chain a combo)</li>
+          <li><kbd>E</kbd> kick</li>
+          <li><kbd>Q</kbd> shockwave (8s cooldown)</li>
+          <li><kbd>Right click</kbd> / <kbd>F</kbd> block</li>
+          <li><kbd>V</kbd> dodge dash</li>
+          <li><kbd>Shift</kbd> sprint &nbsp; <kbd>Space</kbd> jump</li>
+          <li><kbd>T</kbd> first / third person arms view</li>
+          <li><kbd>Esc</kbd> pause</li>
+        </ul>
+        <h3>Guns &amp; loot</h3>
+        <ul class="keys">
+          <li><kbd>1</kbd> pistol <kbd>2</kbd> AR <kbd>3</kbd> shotgun <kbd>5</kbd> SMG <kbd>6</kbd> sniper <kbd>4</kbd> fists</li>
+          <li><kbd>B</kbd> auto / semi &nbsp; <kbd>Wheel</kbd> / <kbd>Z</kbd> scope zoom (2x 4x 8x)</li>
+          <li><kbd>X</kbd> loot a drop &nbsp; <kbd>H</kbd> medkit &nbsp; <kbd>Tab</kbd> inventory</li>
+          <li>Hold <kbd>G</kbd> to show the grenade arc, release to throw</li>
+          <li>With a gun: <kbd>Left click</kbd> fire, <kbd>Right click</kbd> aim (ADS)</li>
+          <li><kbd>R</kbd> reload &nbsp; <kbd>G</kbd> grenade &nbsp; <kbd>C</kbd> crouch</li>
+          <li><kbd>M</kbd> minimap mode &nbsp; <kbd>J</kbd> punch / <kbd>F</kbd> block always work</li>
+          <li>Walk over map loot to pick it up. Fallen enemies drop loot crates: stand near and press <kbd>X</kbd></li>
+          <li><kbd>F3</kbd> FPS counter (resolution auto-adjusts to hold 60 FPS)</li>
+        </ul>
+        <p class="muted">Hit an enemy while it is winding up an attack for a 1.5× counter-crit. Shield soaks damage first. The red storm shrinks in 5 phases and hurts anyone outside. Touch screens get an on-screen joystick, buttons and a draggable layout editor.</p>
+      </section>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="teamPanel"></div>
+    <div id="topBar">
+      <div id="modeLabel"></div>
+      <div id="timer">5:00</div>
+      <div id="aliveLabel"></div>
+      <div id="zoneTimer"></div>
+      <div id="compass">N 0°</div>
+      <div id="objective"></div>
+    </div>
+    <div id="rightTop">
+      <canvas id="minimap" width="150" height="150"></canvas>
+      <div id="netLabel"></div>
+      <div id="killfeed"></div>
+    </div>
+    <div id="adsOverlay"></div>
+    <div id="scope"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><g stroke="#000" stroke-width="0.18" fill="none"><line x1="0" y1="50" x2="100" y2="50"/><line x1="50" y1="0" x2="50" y2="100"/><circle cx="50" cy="50" r="0.5" fill="#f33" stroke="none"/></g><g fill="#000"><circle cx="45" cy="50" r="0.35"/><circle cx="40" cy="50" r="0.35"/><circle cx="55" cy="50" r="0.35"/><circle cx="60" cy="50" r="0.35"/><circle cx="50" cy="55" r="0.35"/><circle cx="50" cy="60" r="0.35"/><circle cx="50" cy="65" r="0.35"/></g></svg><div id="scopeZoom"></div></div>
+    <div id="interactPrompt"></div>
+    <div id="nadeHint">Release <kbd>G</kbd> to throw</div>
+    <div id="healWrap"><span>Healing...</span><i id="healBar"></i></div>
+    <div id="fpsMeter" class="hidden"></div>
+    <div id="bag" class="hidden"><h4>Inventory <small>[Tab]</small></h4><div id="bagList"></div></div>
+    <div id="crosshair"></div>
+    <div id="aimLock"></div>
+    <div id="zoneWarn">⚠ OUTSIDE SAFE ZONE ⚠</div>
+    <div id="dmgDir"><i class="da top"></i><i class="da bot"></i><i class="da left"></i><i class="da right"></i></div>
+    <div id="hitmarker"></div>
+    <div id="buffs"></div>
+    <div id="bars">
+      <div class="barRow"><span>SH</span><div class="barBg"><div id="shFill"></div><b id="shText"></b></div></div>
+      <div class="barRow"><span>HP</span><div class="barBg"><div id="hpFill"></div><b id="hpText"></b></div></div>
+      <div class="barRow"><span>STA</span><div class="barBg"><div id="stFill"></div></div></div>
+      <div id="skills">
+        <div class="skill"><i id="cdShock"></i><kbd>Q</kbd><small>Shockwave</small></div>
+        <div class="skill"><i id="cdDodge"></i><kbd>V</kbd><small>Dodge</small></div>
+        <div class="skill"><kbd>T</kbd><small id="viewLabel">View</small></div>
+      </div>
+    </div>
+    <div id="wpn">
+      <div id="hotbar">
+        <div class="wsb" data-wep="-1"><kbd>4</kbd>Fists</div>
+        <div class="wsb" data-wep="0"><kbd>1</kbd>Pistol</div>
+        <div class="wsb" data-wep="1"><kbd>2</kbd>AR</div>
+        <div class="wsb" data-wep="2"><kbd>3</kbd>SG</div>
+        <div class="wsb" data-wep="3"><kbd>5</kbd>SMG</div>
+        <div class="wsb" data-wep="4"><kbd>6</kbd>SNP</div>
+      </div>
+      <div id="wpnName">Fists</div>
+      <div id="wpnMode">MELEE</div>
+      <div id="ammo"><b id="ammoMag">--</b><span id="ammoRes"></span></div>
+      <div id="wpnMeta"><span id="nades">Nades 2</span><span id="killsLabel">Kills 0</span><span id="stance">Standing</span></div>
+      <div id="reloadWrap"><i id="reloadBar"></i></div>
+    </div>
+    <div id="banner"></div>
+    <div id="countdown"></div>
+    <div id="clickHint">Click to start fighting</div>
+    <button id="btnPauseTouch" class="hidden">II</button>
+    <div id="flash"></div>
+    <div id="floaters"></div>
+  </div>
+
+  <!-- Touch controls -->
+  <div id="touchUI" class="hidden">
+    <div id="lookZone"></div>
+    <div id="joyZone"><div id="joyKnob"></div></div>
+    <button class="tbtn big" data-act="punch">Punch</button>
+    <button class="tbtn" data-act="kick">Kick</button>
+    <button class="tbtn" data-act="shock">Shock</button>
+    <button class="tbtn" data-act="block">Block</button>
+    <button class="tbtn" data-act="dodge">Dodge</button>
+    <button class="tbtn" data-act="jump">Jump</button>
+    <button class="tbtn fire" data-act="fire">Fire</button>
+    <button class="tbtn" data-act="ads">ADS</button>
+    <button class="tbtn" data-act="crouch">Duck</button>
+    <button class="tbtn" data-act="reload">R</button>
+    <button class="tbtn" data-act="nade">Nade</button>
+    <button class="tbtn" data-act="run">Run</button>
+    <div id="tHotbar">
+      <div class="wsb" data-wep="-1">Fist</div>
+      <div class="wsb" data-wep="0">1</div>
+      <div class="wsb" data-wep="1">2</div>
+      <div class="wsb" data-wep="2">3</div>
+      <div class="wsb" data-wep="3">5</div>
+      <div class="wsb" data-wep="4">6</div>
+    </div>
+    <button class="tbtn sm" data-act="interact">Pick</button>
+    <button class="tbtn sm" data-act="heal">Med</button>
+    <button class="tbtn sm" data-act="zoom">Zoom</button>
+    <button class="tbtn sm" data-act="fmode">Auto</button>
+    <button class="tbtn sm" data-act="bag" id="btnBag">Bag</button>
+    <button id="btnEditLayout" title="Edit button layout">⚙</button>
+    <button id="layoutSave" class="hidden">SAVE LAYOUT</button>
+    <button id="layoutReset" class="hidden">RESET</button>
+  </div>
+  <div id="rotatePrompt"><div>📱</div><b>Rotate your device to landscape</b><small>Savage Warrior plays in horizontal mode</small></div>
+
+  <!-- Overlays -->
+  <div id="pause" class="overlay hidden">
+    <div class="dialog">
+      <h2>Paused</h2>
+      <p class="muted" id="pauseNote"></p>
+      <button id="btnResume" class="btn primary">Resume</button>
+      <button id="btnPauseSettings" class="btn ghost">Settings</button>
+      <button id="btnRestart" class="btn ghost">Restart match</button>
+      <button id="btnQuit" class="btn ghost">Exit to Main Menu</button>
+      <button id="btnQuitGame" class="btn danger">Quit Game</button>
+    </div>
+  </div>
+
+  <div id="settingsDlg" class="overlay hidden">
+    <div class="dialog">
+      <h2>Settings <small class="muted">(saved automatically)</small></h2>
+      <label class="field">Graphics<select id="qualitySel2"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+      <label class="field">Master volume<input id="masterVol2" type="range" min="0" max="1" step="0.05" /></label>
+      <label class="field">Music volume<input id="musicVol2" type="range" min="0" max="1" step="0.05" /></label>
+      <label class="field">Mouse / touch sensitivity<input id="sens2" type="range" min="0.3" max="2.5" step="0.1" /></label>
+      <label class="field">Minimap<select id="mmSel2"><option value="fixed">Fixed (whole arena)</option><option value="rot">Rotating</option></select></label>
+      <p class="muted">Graphics changes apply to the next match.</p>
+      <button id="btnSettingsBack" class="btn primary">Back</button>
+    </div>
+  </div>
+
+  <div id="confirm" class="overlay hidden">
+    <div class="dialog">
+      <h2 id="confirmTitle">Are you sure?</h2>
+      <p class="muted" id="confirmText"></p>
+      <div class="row"><button id="confirmYes" class="btn primary">Yes</button><button id="confirmNo" class="btn ghost">No</button></div>
+    </div>
+  </div>
+
+  <div id="wait" class="overlay hidden">
+    <div class="dialog">
+      <h2 id="waitTitle">Finding a match</h2>
+      <p id="waitText" class="muted"></p>
+      <button id="btnCancelWait" class="btn ghost">Cancel</button>
+    </div>
+  </div>
+
+  <div id="result" class="overlay hidden">
+    <div class="dialog wideDlg">
+      <h1 id="resTitle">VICTORY</h1>
+      <div id="resSub" class="muted"></div>
+      <div class="statGrid">
+        <div><b id="resPlace">-</b><span>Placement</span></div>
+        <div><b id="resKills">0</b><span>Eliminations</span></div>
+        <div><b id="resDmg">0</b><span>Damage</span></div>
+        <div><b id="resTime">0:00</b><span>Time</span></div>
+      </div>
+      <div class="xpGain">+<b id="resXp">0</b> XP &nbsp; <span id="resLevel"></span></div>
+      <div class="row">
+        <button id="btnAgain" class="btn primary">Play again</button>
+        <button id="btnLobby" class="btn ghost">Return to Lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="board" class="overlay hidden">
+    <div class="dialog">
+      <h2>Leaderboard</h2>
+      <ol id="boardList"></ol>
+      <button id="btnBoardClose" class="btn ghost">Close</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

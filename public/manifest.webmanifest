@@ -1,0 +1,17 @@
+{
+  "name": "Savage Warrior",
+  "short_name": "Savage Warrior",
+  "description": "Bangladesh-themed 3D fighting game with guns, loot, grenades and a shrinking storm.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#04140d",
+  "theme_color": "#006a4e",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
