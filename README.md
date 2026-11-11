@@ -169,6 +169,7 @@ Na korleo game kaj kore (guest mode + local XP).
    (Windows PowerShell: `$env:FIREBASE_PROJECT_ID="your-project-id"; npm run server`).
 
 ## Deploy
+- GitHub Pages: push to `main`; GitHub Actions builds and publishes the client at `https://smanik0002.github.io/Savage-Warrior-/`. The Pages version supports offline play with bots; online multiplayer needs a separately hosted server configured with `VITE_SERVER_URL`.
 - Client: `npm run build` -> `dist/` folder static hosting-e (Netlify, Firebase Hosting, Vercel...).
 - Server: `server/index.js` + `shared/` folder shoho ekta chhoto cloud VM/Render/Railway-e `node server/index.js`. Client-er `.env`-e `VITE_SERVER_URL=https://your-server` din.
 
